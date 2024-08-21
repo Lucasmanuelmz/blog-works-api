@@ -20,8 +20,6 @@ const Category = sequelize.define(
     type: DataTypes.INTEGER,
     allowNull: false
   }
-}, {
-  timestamps: true,
 });
  
 User.hasMany(Category, { foreignKey: 'userId' }); 

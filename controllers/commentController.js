@@ -1,5 +1,14 @@
-const Comment = require('../../models/commentsModel');
+const Comment = require('../models/commentsModel');
 const asyncHandler = require('express-async-handler');
+const {body, validationResult} = require('express-validator');
+
+const validateComment = [
+  body('comment')
+    .trim() 
+    .optional() 
+    .isLength({ min: 1, max: 500 })
+    .withMessage('O comentário deve ter entre 1 e 500 caracteres'),
+];
 
 exports.getComments = asyncHandler(async (req, res) => {
   const comments = await Comment.findAll();
@@ -18,16 +27,24 @@ exports.getCommentById = asyncHandler(async (req, res) => {
   return res.status(200).json({ comment });
 });
 
-exports.updateComment = asyncHandler(async (req, res) => {
-  const {id,  comment, postId, username } = req.body;
+exports.updateComment = [validateComment, asyncHandler(async (req, res) => {
+  const errors = validationResult(req);
+
+  if(!errors.isEmpty()) {
+    res.status(400).json({errors: errors.array()});
+  }
+
+  const {id,  comment, postId, userId } = req.body;
   if (!isNaN(id)) {
+
     const verifyCommentToUpdate = await Comment.findByPk(id);
+
     if (verifyCommentToUpdate) {
       await Category.update(
         {
           comment,
           postId,
-          username
+          userId
         },
         { where: { id: id } } 
       );
@@ -38,11 +55,13 @@ exports.updateComment = asyncHandler(async (req, res) => {
   } else {
     return res.status(400).json({ message: 'ID inválido' });
   }
-});
+})];
 
 exports.deleteComment = asyncHandler(async (req, res) => {
   const id = parseInt(req.body.id);
+
   const comment = await Comment.findOne({ where: { id: id } });
+
   if (comment) {
     await Comment.destroy({ where: { id: id } });
     return res.status(204).send();
@@ -51,15 +70,29 @@ exports.deleteComment = asyncHandler(async (req, res) => {
   }
 });
 
-exports.createComment = asyncHandler(async (req, res) => {
-  const { comment, postId, username} = req.body;
-      await Category.create(
+exports.createComment = [validateComment, asyncHandler(async (req, res) => {
+
+  const errors = validationResult(req);
+  if(!errors.isEmpty()) {
+    res.status(400).json({errors: errors.array()});
+  }
+
+  const { comment, postId, userId} = req.body;
+  try{
+    if(comment !== undefined && !isNaN(postId) && !isNaN(userId)) {
+      await Comment.create(
         {
           comment,
           postId,
-          username
+          userId
         }
       );
       return res.status(201).json({ message: 'Comentario criado com sucesso' });
-});
+    } else {
+     res.status(409).json({message: 'Os dados recebidos nao sao compativeis com os requeridos'})
+    }   
+  } catch(error) {
+    return res.status(500).json({message: 'Erro no servidor'})
+  }
+})];
 

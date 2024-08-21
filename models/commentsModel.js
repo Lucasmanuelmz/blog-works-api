@@ -13,23 +13,15 @@ const Comment = sequelize.define(
     postId: {
       type: DataTypes.INTEGER,
       references: {
-        model: Post,  // Referência direta ao modelo
+        model: Post, 
         key: 'id'
-      },
-      allowNull: false 
-    },
-    username: {
-      type: DataTypes.STRING,
-      references: {
-        model: User,  // Referência direta ao modelo
-        key: 'username'
       },
       allowNull: false 
     },
     userId: {
       type: DataTypes.INTEGER,
       references: {
-        model: User,  // Referência direta ao modelo
+        model: User,  
         key: 'id'
       },
       allowNull: false 
@@ -40,14 +32,11 @@ const Comment = sequelize.define(
   }
 );
 
-// Definindo associações
+
 Comment.belongsTo(Post, { foreignKey: 'postId' });
 Post.hasMany(Comment, { foreignKey: 'postId' });
 
 Comment.belongsTo(User, { foreignKey: 'userId' });
 User.hasMany(Comment, { foreignKey: 'userId' });
-
-// Sincronizar o modelo com o banco de dados (em desenvolvimento, use com cuidado)
-Comment.sync({ force: true });
 
 module.exports = Comment;

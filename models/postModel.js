@@ -50,18 +50,13 @@ const Post = sequelize.define(
     imageUrl: {
       type: DataTypes.STRING,
       allowNull: true,
-    },
-  }, {
-    timestamps: true, 
-  }
-);
+    }
+});
 
 Category.hasMany(Post, { foreignKey: 'categoryId'});
 Post.belongsTo(Category, {foreignKey: 'categoryId'});
 
 User.hasMany(Post, {foreignKey: 'userId'});
 Post.belongsTo(User, {foreignKey: 'userId'});
-
-Post.sync({ force: true });
 
 module.exports = Post;

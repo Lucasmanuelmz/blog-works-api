@@ -1,6 +1,15 @@
-const Category = require('../../models/categoryModel');
+const Category = require('../models/categoryModel');
 const asyncHandler = require('express-async-handler');
 const slugify = require('slugify');
+const {body, validationResult} = require('express-validator');
+
+const validateCategory = [
+  body('name')
+    .trim() 
+    .optional() 
+    .isLength({ min: 1, max: 100 })
+    .withMessage('O Nome da categoria deve ter entre 1 e 100 caracteres'),
+];
 
 exports.getCategories = asyncHandler(async (req, res) => {
   const categories = await Category.findAll();
@@ -23,8 +32,13 @@ exports.getCategoryById = asyncHandler(async (req, res) => {
   return res.status(200).json({ category });
 });
 
-exports.updateCategory = asyncHandler(async (req, res) => {
-  const { id, name, position, row } = req.body;
+exports.updateCategory = [validateCategory, asyncHandler(async (req, res) => {
+  const errors = validationResult(req);
+
+  if(!errors.isEmpty()) {
+    res.status(400).json({errors: errors.array()})
+  }
+  const { id, name, position, row, userId } = req.body;
 
   if (!isNaN(id)) {
     const verifyCategoryToUpdate = await Category.findByPk(id);
@@ -36,6 +50,7 @@ exports.updateCategory = asyncHandler(async (req, res) => {
           slug: slugify(name),
           position: position,
           row: row,
+          userId
         },
         { where: { id: id } } 
       );
@@ -47,7 +62,7 @@ exports.updateCategory = asyncHandler(async (req, res) => {
   } else {
     return res.status(400).json({ message: 'ID inválido' });
   }
-});
+})];
 
 exports.deleteCategory = asyncHandler(async (req, res) => {
   const id = parseInt(req.body.id);
@@ -62,8 +77,13 @@ exports.deleteCategory = asyncHandler(async (req, res) => {
   }
 });
 
-exports.createCategory = asyncHandler(async (req, res) => {
-  const { name, position, row } = req.body;
+exports.createCategory =[validateCategory, asyncHandler(async (req, res) => {
+  const errors = validationResult(req);
+
+  if(!errors.isEmpty()) {
+    res.status(400).json({errors: errors.array()})
+  }
+  const { name, position, row, userId } = req.body;
 
     const verifyCategoryToCreate = await Category.findOne({
       where: {name: name}
@@ -76,10 +96,11 @@ exports.createCategory = asyncHandler(async (req, res) => {
           slug: slugify(name),
           position: position,
           row: row,
+          userId
         }
       );
       return res.status(201).json({ message: 'Categoria criada com sucesso' });
     } else {
       return res.status(400).json({ message: 'Categoria não foi criada'});
     }
-});
+})];
