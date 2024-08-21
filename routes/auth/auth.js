@@ -3,10 +3,10 @@ const userRoute = Router();
 const passport = require('passport');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
-const validateAuth = require('../../middlewares/validateAuth');
+const validateAuth = require('../../validation/validateAuth');
 const { validationResult } = require('express-validator');
 
-userRoute.post('/login', validateAuth, (req, res, next) => {
+userRoute.post('/api/auth/login', validateAuth, (req, res, next) => {
   
   const errors = validationResult(req);
   if (!errors.isEmpty()) {

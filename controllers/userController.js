@@ -4,7 +4,6 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 const {validationResult} = require('express-validator');
-const validationUser = require('../middlewares/expressValidator')
 
 exports.getUsers = asyncHandler(async(req, res) => {
 try {
@@ -36,11 +35,11 @@ if(!isNaN(id)) {
 }
 });
 
-exports.createUser = [validationUser, asyncHandler(async (req, res) => {
+exports.createUser = asyncHandler(async (req, res) => {
 
   const errors = validationResult(req);
   if(!errors.isEmpty()) {
-    res.status(400).json({errors: errors.array()})
+   return res.status(400).json({errors: errors.array()})
   }
 
   const { firstName, lastName, username, email, password } = req.body;
@@ -81,13 +80,13 @@ try {
 }catch(error) {
   return res.status(500).json({message: 'Erro no servidor'})
 }
-})];
+});
 
-exports.updateUser = [validationUser, asyncHandler(async (req, res) => {
+exports.updateUser = asyncHandler(async (req, res) => {
 
   const errors = validationResult(req);
   if(!errors.isEmpty()) {
-    res.status(400).json({errors: errors.array()})
+   return res.status(400).json({errors: errors.array()})
   }
 
   const { id, firstName, lastName, email, username} = req.body;
@@ -123,14 +122,14 @@ exports.updateUser = [validationUser, asyncHandler(async (req, res) => {
 } catch(error) {
   return res.status(500)
 }
-})];
+});
 
 exports.deleteUser = asyncHandler(async(req, res) => {
   const id = parseInt(req.body.id);
   if(!isNaN(id)) {
   await User.destroy({where: {id}})
-  res.status(201).json({message: 'Usuário apagado com sucesso'})
+  return res.status(201).json({message: 'Usuário apagado com sucesso'})
   } else {
-    res.status(404).json({message: 'Usuário não encontrado'})
+   return res.status(404).json({message: 'Usuário não encontrado'})
   }
 })

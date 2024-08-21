@@ -1,14 +1,6 @@
 const Comment = require('../models/commentsModel');
 const asyncHandler = require('express-async-handler');
-const {body, validationResult} = require('express-validator');
-
-const validateComment = [
-  body('comment')
-    .trim() 
-    .optional() 
-    .isLength({ min: 1, max: 500 })
-    .withMessage('O comentário deve ter entre 1 e 500 caracteres'),
-];
+const { validationResult } = require('express-validator');
 
 exports.getComments = asyncHandler(async (req, res) => {
   const comments = await Comment.findAll();
@@ -27,11 +19,11 @@ exports.getCommentById = asyncHandler(async (req, res) => {
   return res.status(200).json({ comment });
 });
 
-exports.updateComment = [validateComment, asyncHandler(async (req, res) => {
+exports.updateComment = asyncHandler(async (req, res) => {
   const errors = validationResult(req);
 
   if(!errors.isEmpty()) {
-    res.status(400).json({errors: errors.array()});
+   return res.status(400).json({errors: errors.array()});
   }
 
   const {id,  comment, postId, userId } = req.body;
@@ -55,7 +47,7 @@ exports.updateComment = [validateComment, asyncHandler(async (req, res) => {
   } else {
     return res.status(400).json({ message: 'ID inválido' });
   }
-})];
+});
 
 exports.deleteComment = asyncHandler(async (req, res) => {
   const id = parseInt(req.body.id);
@@ -70,11 +62,11 @@ exports.deleteComment = asyncHandler(async (req, res) => {
   }
 });
 
-exports.createComment = [validateComment, asyncHandler(async (req, res) => {
+exports.createComment = asyncHandler(async (req, res) => {
 
   const errors = validationResult(req);
   if(!errors.isEmpty()) {
-    res.status(400).json({errors: errors.array()});
+   return res.status(400).json({errors: errors.array()});
   }
 
   const { comment, postId, userId} = req.body;
@@ -89,10 +81,10 @@ exports.createComment = [validateComment, asyncHandler(async (req, res) => {
       );
       return res.status(201).json({ message: 'Comentario criado com sucesso' });
     } else {
-     res.status(409).json({message: 'Os dados recebidos nao sao compativeis com os requeridos'})
+     return res.status(409).json({message: 'Os dados recebidos nao sao compativeis com os requeridos'})
     }   
   } catch(error) {
     return res.status(500).json({message: 'Erro no servidor'})
   }
-})];
+});
 

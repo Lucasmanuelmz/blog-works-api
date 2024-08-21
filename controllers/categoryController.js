@@ -36,7 +36,7 @@ exports.updateCategory = [validateCategory, asyncHandler(async (req, res) => {
   const errors = validationResult(req);
 
   if(!errors.isEmpty()) {
-    res.status(400).json({errors: errors.array()})
+    return res.status(400).json({errors: errors.array()})
   }
   const { id, name, position, row, userId } = req.body;
 
@@ -81,7 +81,7 @@ exports.createCategory =[validateCategory, asyncHandler(async (req, res) => {
   const errors = validationResult(req);
 
   if(!errors.isEmpty()) {
-    res.status(400).json({errors: errors.array()})
+   return res.status(400).json({errors: errors.array()})
   }
   const { name, position, row, userId } = req.body;
 
